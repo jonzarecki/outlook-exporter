@@ -1,14 +1,52 @@
 import datetime
+from dataclasses import dataclass
 from typing import List
 
 import win32com.client
 
 
+@dataclass
+class CalendarEntry:
+    subject: str
+    start_date: str
+    end_date: str
+
+    location: str
+    organizer: str
+    busystatus: str
+
+    attendees: List[str]
+    categories: List[str]
+    conversation_id: str
+
+    def __str__(self):
+        return (
+            f"{self.subject}: {self.start_date}-{self.end_date} \n"
+            f"{self.location}, {self.organizer}, {self.busystatus} \n"
+            f"{self.attendees}\n"
+            f"{self.categories}\n"
+            f"{self.conversation_id}"
+        )
+
+
 def print_calendar(folder: win32com.client.CDispatch):
-    """Prints calendar events during the next 30 days.
+    """Print calendar events during the next 30 days.
 
     Args:
         folder: The Calendar folder to use.
+    """
+    for entry in read_calendar(folder):
+        print(entry)
+
+
+def read_calendar(folder: win32com.client.CDispatch) -> List[CalendarEntry]:
+    """Read calendar events during the next 30 days.
+
+    Args:
+        folder: The Calendar folder to use.
+
+    Returns:
+        List of CalendarEntries with read information
     """
     # Get the AppointmentItem objects
     # http://msdn.microsoft.com/en-us/library/office/aa210899(v=office.11).aspx
@@ -35,9 +73,11 @@ def print_calendar(folder: win32com.client.CDispatch):
     def format_categories_to_list(cat_list: str) -> List[str]:
         return cat_list.split(".") if cat_list != "" else []  # TODO: clean attendees names
 
-    # Print items - Note that Outlook might prevent access to individual
+    # Read items - Note that Outlook might prevent access to individual
     # item attributes, such as "Organizer", while access to other attributes of
     # the same item is granted.
+    calendar_entries = []
+
     for appointment_item in restricted_items:
         start_date = appointment_item.Start
         end_date = appointment_item.End
@@ -49,10 +89,18 @@ def print_calendar(folder: win32com.client.CDispatch):
         organizer = appointment_item.Organizer
         categories = format_categories_to_list(appointment_item.Categories)
         conversation_id = appointment_item.ConversationID  # maybe an ID resilient to reschedules
-        print(
-            f"{subject}: {start_date}-{end_date} \n"
-            f"{location}, {organizer}, {busystatus} \n"
-            f"{required_attendees + opt_attendees} \n"
-            f"{categories}\n"
-            f"{conversation_id}"
+
+        entry = CalendarEntry(
+            subject,
+            start_date,
+            end_date,
+            location,
+            organizer,
+            busystatus,
+            required_attendees + opt_attendees,
+            categories,
+            conversation_id,
         )
+        calendar_entries.append(entry)
+
+    return calendar_entries
