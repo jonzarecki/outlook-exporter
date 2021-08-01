@@ -3,6 +3,8 @@ from typing import Iterable, List, Optional
 
 import win32com.client
 
+# based on https://github.com/afester/StackOverflow/blob/master/Python/Win32Com/COMsample.py
+
 
 def show_folder_tree(folders: Iterable[win32com.client.CDispatch], indent: int = 0):  # noqa
     """Displays all available folders in a tree structure.
