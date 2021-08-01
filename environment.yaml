@@ -1,0 +1,12 @@
+name: outlook-exporter
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.7
+  - pip
+  - pywin32
+
+  - pip:
+      - streamlit

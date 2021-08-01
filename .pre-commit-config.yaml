@@ -1,0 +1,182 @@
+default_stages: [commit, manual]
+repos:
+  #  - repo: https://github.com/jorisroovers/gitlint
+  #    rev: v0.15.1
+  #    hooks:
+  #      - id: gitlint
+  #        stages: [commit-msg]
+
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
+
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: "v2.7.4"
+    hooks:
+      - id: pylint
+        types: [python]
+        args:
+          [
+            "-rn",
+            "-sn",
+            "--rcfile=.pylintrc",
+            "--load-plugins=pylint.extensions.docparams",
+          ]
+
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        exclude: docs/
+
+  - repo: https://github.com/ambv/black
+    rev: 21.5b2
+    hooks:
+      - id: black
+        args: ["--line-length", "120"]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        exclude: docs/
+        additional_dependencies: # https://dev.to/mmphego/why-you-need-to-stop-using-git-hooks-41
+          [
+            flake8-return==1.1.2,
+            flake8-simplify==0.14.1,
+            flake8-2020, # flake8 plugin which checks for misuse of `sys.version` or `sys.version_info`
+            flake8-absolute-import, # uses a simple check of the AST for each from x import y statement to flag relative imports.
+            flake8-blind-except, # A flake8 extension that checks for blind except: statements
+            flake8-bugbear, # A plugin for flake8 finding likely bugs and design problems in your program.
+            flake8-builtins, # Check for python builtins being used as variables or parameters.
+            flake8-comprehensions, # It helps you write a better list/set/dict comprehensions.
+            flake8-deprecated, # Warns about deprecated method calls.
+            flake8-eradicate, # Flake8 plugin to find commented out code
+            flake8-license, # flake8 plugin which verifies that source files contain license, header at the top.
+            flake8-pytest, # pytest assert checker plugin for flake8
+            flake8-tabs, # Tab (or Spaces) indentation style checker for flake8
+            pep8-naming, # Check PEP-8 naming conventions, plugin for flake8
+          ]
+
+  # considered wily, radon & xenon for code complexity, satisfied with flake8 complexity scores
+
+  - repo: https://github.com/jendrikseipp/vulture
+    rev: "v2.3"
+    hooks:
+      - id: vulture
+        name: vulture
+        language: python
+        entry: vulture
+        description: Find unused Python code.
+        types: [python]
+        args:
+          [
+            --sort-by-size,
+            "--min-confidence",
+            "100",
+            "--exclude",
+            "**/.ipynb_checkpoints/,notebooks/,tests",
+            ".",
+          ]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "v0.901"
+    hooks:
+      - id: mypy
+        args: ["--ignore-missing-imports", "--scripts-are-modules"]
+        additional_dependencies:
+          - attrs
+
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.1.1
+    hooks:
+      - id: pydocstyle
+        exclude: ^.*(__init__.py|test.*)
+
+  - repo: https://github.com/terrencepreilly/darglint
+    rev: v1.8.0
+    hooks:
+      - id: darglint
+        args: ["-v", "2"]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.19.4
+    hooks:
+      - id: pyupgrade
+        args: [--py3-plus, --py36-plus]
+
+  #  - repo: https://github.com/seddonym/import-linter
+  #    rev: v1.2.1
+  #    hooks:
+  #      - id: import-linter
+
+  - repo: https://github.com/MarcoGorelli/absolufy-imports
+    rev: v0.3.0
+    hooks:
+      - id: absolufy-imports
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.3.9
+    hooks:
+      - id: nbstripout
+
+  - repo: https://github.com/mwouts/jupytext
+    rev: v1.11.3
+    hooks:
+      - id: jupytext
+        files: '^notebooks/(notes|nb_python)/(.*\.py|.*\.ipynb)$'
+        exclude: "^.*__init__.py"
+        args: [
+            --pre-commit-mode,
+            --update-metadata,
+            '{"jupytext":{"notebook_metadata_filter":"all", "cell_metadata_filter":"-all"}, "accelerator":"GPU"}',
+            \
+            --set-formats,
+            "notebooks//nb_python//py:percent,notebooks//notes//ipynb,",
+            \
+            --pipe,
+            black,
+            --pipe,
+            'isort - --treat-comment-as-code "# %%"',
+            --pipe-fmt,
+            "py:percent",
+            --sync,
+          ]
+        #        pass_filenames: false
+        additional_dependencies:
+          - "nbformat<=5.0.8"
+          - black
+          - isort
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.7.2.1
+    hooks:
+      - id: shellcheck
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ["--maxkb=2000"]
+      - id: check-xml
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: requirements-txt-fixer
+
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.1.0
+    hooks:
+      - id: pretty-format-ini
+        args: [--autofix]
+        exclude: .pylintrc
+      - id: pretty-format-toml
+        args: [--autofix]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v2.3.2"
+    hooks:
+      - id: prettier
