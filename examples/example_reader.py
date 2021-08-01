@@ -1,7 +1,7 @@
 import win32com.client
 
-from outlook_reader.calendar import print_calendar
-from outlook_reader.folder import show_folder_tree
+from utils.outlook_reader.calendar import print_calendar
+from utils.outlook_reader.folder import show_folder_tree
 
 if __name__ == "__main__":
     # get Outlook application object
