@@ -4,6 +4,8 @@ from typing import List
 
 import win32com.client
 
+from utils.outlook_reader.general import generate_outlook_namespace
+
 
 @dataclass
 class CalendarEntry:
@@ -19,7 +21,7 @@ class CalendarEntry:
     categories: List[str]
     conversation_id: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         return (
             f"{self.subject}: {self.start_date}-{self.end_date} \n"
             f"{self.location}, {self.organizer}, {self.busystatus} \n"
@@ -28,34 +30,49 @@ class CalendarEntry:
             f"{self.conversation_id}"
         )
 
+    def export_as_str(self) -> str:
+        return str(sorted(self.__dict__.items(), key=lambda itm: itm[0]))
 
-def print_calendar(folder: win32com.client.CDispatch):
+    @staticmethod
+    def import_from_char(s: str) -> "CalendarEntry":
+        params = dict(eval(s))  # pylint: disable=W0123
+        assert isinstance(params, dict), "exported string should contain a string of a dict items"
+        return CalendarEntry(**params)
+
+
+def get_current_user_outlook_calendar() -> win32com.client.CDispatch:
+    """Get Outlook calendar folders for current user."""
+    namespace = generate_outlook_namespace()
+    return namespace.GetDefaultFolder(9)
+
+
+def print_calendar(calendar: win32com.client.CDispatch):
     """Print calendar events during the next 30 days.
 
     Args:
-        folder: The Calendar folder to use.
+        calendar: The Calendar folder to use.
     """
-    for entry in read_calendar(folder):
+    for entry in read_calendar(calendar):
         print(entry)
 
 
-def read_calendar(folder: win32com.client.CDispatch) -> List[CalendarEntry]:
+def read_calendar(calendar: win32com.client.CDispatch) -> List[CalendarEntry]:
     """Read calendar events during the next 30 days.
 
     Args:
-        folder: The Calendar folder to use.
+        calendar: The Calendar folder to use.
 
     Returns:
         List of CalendarEntries with read information
     """
     # Get the AppointmentItem objects
     # http://msdn.microsoft.com/en-us/library/office/aa210899(v=office.11).aspx
-    items = folder.Items
+    items = calendar.Items
 
     # Restrict to items in the next 30 days
     begin = datetime.date.today()
     end = begin + datetime.timedelta(days=30)
-    restriction = "[Start] >= '" + begin.strftime("%m/%d/%Y") + "' AND [End] <= '" + end.strftime("%m/%d/%Y") + "'"
+    restriction = "[Start] >= '" + begin.strftime("%d/%m/%Y") + "' AND [End] <= '" + end.strftime("%d/%m/%Y") + "'"
     restricted_items = items.Restrict(restriction)
 
     # https://docs.microsoft.com/en-us/office/vba/api/outlook.olbusystatus
@@ -79,8 +96,8 @@ def read_calendar(folder: win32com.client.CDispatch) -> List[CalendarEntry]:
     calendar_entries = []
 
     for appointment_item in restricted_items:
-        start_date = appointment_item.Start
-        end_date = appointment_item.End
+        start_date = appointment_item.Start.isoformat()
+        end_date = appointment_item.End.isoformat()
         subject = appointment_item.Subject
         opt_attendees = format_attendees_to_list(appointment_item.OptionalAttendees)
         required_attendees = format_attendees_to_list(appointment_item.RequiredAttendees)
