@@ -31,11 +31,15 @@ class CalendarEntry:
         )
 
     def export_as_str(self) -> str:
-        return str(sorted(self.__dict__.items(), key=lambda itm: itm[0]))
+        repr_s = str([v for (k, v) in sorted(self.__dict__.items(), key=lambda itm: itm[0])])
+        assert CalendarEntry.import_from_char(repr_s) == self, "import and export should be equal"
+        return repr_s
 
     @staticmethod
-    def import_from_char(s: str) -> "CalendarEntry":
-        params = dict(eval(s))  # pylint: disable=W0123
+    def import_from_char(repr_s: str) -> "CalendarEntry":
+        values = eval(repr_s)  # pylint: disable=W0123
+        keys = sorted(CalendarEntry.__annotations__.keys())
+        params = dict(zip(keys, values))
         assert isinstance(params, dict), "exported string should contain a string of a dict items"
         return CalendarEntry(**params)
 
