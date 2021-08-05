@@ -1,6 +1,6 @@
 import win32com.client
 
-from utils.outlook_reader.calendar import print_calendar
+from utils.outlook_reader.calendar import read_calendar
 from utils.outlook_reader.folder import show_folder_tree
 
 if __name__ == "__main__":
@@ -22,4 +22,10 @@ if __name__ == "__main__":
     print("\nMy calendar")
     print("---------------")
     calendar = namespace.GetDefaultFolder(9)
-    print_calendar(calendar)
+    entries = read_calendar(calendar)
+    for entry in entries:
+        print(entry)
+
+    print("---------------")
+    for entry in entries:
+        print(entry.export_as_str())

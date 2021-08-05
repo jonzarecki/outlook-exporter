@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List
 
 import win32com.client
+from pywintypes import TimeType
 
 from utils.outlook_reader.general import (
     OUTLOOK_COLOR_MAPPER,
@@ -13,8 +14,8 @@ from utils.outlook_reader.general import (
 @dataclass
 class OutlookCalendarEntry:
     subject: str
-    start_date: str
-    end_date: str
+    start_date: datetime.datetime
+    end_date: datetime.datetime
 
     location: str
     organizer: str
@@ -64,16 +65,6 @@ def get_current_user_outlook_calendar() -> win32com.client.CDispatch:
     return namespace.GetDefaultFolder(9)
 
 
-def print_calendar(calendar: win32com.client.CDispatch):
-    """Print calendar events during the next 30 days.
-
-    Args:
-        calendar: The Calendar folder to use.
-    """
-    for entry in read_calendar(calendar):
-        print(entry)
-
-
 def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEntry]:
     """Read calendar events during the next 30 days.
 
@@ -108,14 +99,17 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
     def format_categories_to_list(cat_list: str) -> List[str]:
         return cat_list.split(", ") if cat_list != "" else []
 
+    def convert_pywintypes_datetime_to_datetime(pywin_dt: TimeType) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(pywin_dt.timestamp(), tz=pywin_dt.tzinfo)
+
     # Read items - Note that Outlook might prevent access to individual
     # item attributes, such as "Organizer", while access to other attributes of
     # the same item is granted.
     calendar_entries = []
 
     for appointment_item in restricted_items:
-        start_date = appointment_item.Start.isoformat()
-        end_date = appointment_item.End.isoformat()
+        start_date = convert_pywintypes_datetime_to_datetime(appointment_item.Start)
+        end_date = convert_pywintypes_datetime_to_datetime(appointment_item.End)
         subject = appointment_item.Subject
         opt_attendees = format_attendees_to_list(appointment_item.OptionalAttendees)
         required_attendees = format_attendees_to_list(appointment_item.RequiredAttendees)
