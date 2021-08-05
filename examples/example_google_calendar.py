@@ -1,29 +1,17 @@
 from beautiful_date import Jan
-from gcsa.event import Event
-from gcsa.google_calendar import GoogleCalendar
 
-from utils.config import PROJECT_ROOT
-
-
-def create_process():
-    return GoogleCalendar(
-        credentials_path=fr"{PROJECT_ROOT}\examples\client_secret_119838334189-dlje9qj80mvkn0ipggkrjv05lklf2uk9.\
-                            apps.googleusercontent.com.json"
-    )
-
+from utils.google_calendar import create_gc_object, upsert_gc_event
 
 if __name__ == "__main__":
-    gc = create_process()
+    gc = create_gc_object()
 
-    event = Event(
-        id="kmruhlmcc2tvnln9gofius8jqooo1",
+    event = upsert_gc_event(
+        gc,
         event_id="kmruhlmcc2tvnln9gofius8jqooo1",
         summary="Breakfast",
-        start=(1 / Jan / 2019)[13:00],
-        minutes_before_email_reminder=50,
+        start_date=(1 / Jan / 2019)[13:00],
+        end_date=(1 / Jan / 2019)[14:00],
+        transparency="opaque",
     )
-
-    event = gc.add_event(event)
-
     for event in gc:
         print(event)

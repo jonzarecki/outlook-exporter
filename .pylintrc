@@ -151,6 +151,7 @@ disable=abstract-method,
         missing-class-docstring,
         missing-raises-doc,
         protected-access,
+        logging-fstring-interpolation,
 
 [REPORTS]
 
