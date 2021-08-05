@@ -21,7 +21,7 @@ GRAY = "#ABABAB"
 BLACK = "#474747"
 NO_COLOR = "NO_COLOR"
 
-OUTLOOK_COLOR_MAPPER = {
+OUTLOOK_COLOR_ENUM = {
     15: BLACK,
     8: BLUE,
     0: NO_COLOR,
@@ -31,4 +31,19 @@ OUTLOOK_COLOR_MAPPER = {
     1: RED,
     10: MAROON,
     9: PURPLE,
+}
+
+FREE = "Free"
+TENTATIVE = "Tentative"
+BUSY = "Busy"
+OUT_OF_OFFICE = "OutOfOffice"
+ELSEWHERE = "WorkingElsewhere"
+
+# https://docs.microsoft.com/en-us/office/vba/api/outlook.olbusystatus
+BUSYSTATUS_ENUM = {
+    0: FREE,
+    1: TENTATIVE,
+    2: BUSY,
+    3: OUT_OF_OFFICE,
+    4: ELSEWHERE,
 }

@@ -6,7 +6,8 @@ import win32com.client
 from pywintypes import TimeType
 
 from utils.outlook_reader.general import (
-    OUTLOOK_COLOR_MAPPER,
+    BUSYSTATUS_ENUM,
+    OUTLOOK_COLOR_ENUM,
     generate_outlook_namespace,
 )
 
@@ -54,7 +55,7 @@ def get_category_color(cat_name: str, namespace: win32com.client.CDispatch = Non
     namespace = generate_outlook_namespace() if namespace is None else namespace
     for cat in namespace.Categories:
         if cat.Name == cat_name:
-            return OUTLOOK_COLOR_MAPPER[cat.Color]
+            return OUTLOOK_COLOR_ENUM[cat.Color]
     else:
         raise ValueError(f"{cat_name} is not a valid outlook category name")
 
@@ -84,15 +85,6 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
     restriction = "[Start] >= '" + begin.strftime("%d/%m/%Y") + "' AND [End] <= '" + end.strftime("%d/%m/%Y") + "'"
     restricted_items = items.Restrict(restriction)
 
-    # https://docs.microsoft.com/en-us/office/vba/api/outlook.olbusystatus
-    busystatus_enum = {
-        0: "Free",
-        1: "Tentative",
-        2: "Busy",
-        3: "OutOfOffice",
-        4: "WorkingElsewhere",
-    }
-
     def format_attendees_to_list(att_list: str) -> List[str]:
         return att_list.split("; ") if att_list != "" else []  # TODO: clean attendees names
 
@@ -113,7 +105,7 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
         subject = appointment_item.Subject
         opt_attendees = format_attendees_to_list(appointment_item.OptionalAttendees)
         required_attendees = format_attendees_to_list(appointment_item.RequiredAttendees)
-        busystatus = busystatus_enum[appointment_item.BusyStatus]
+        busystatus = BUSYSTATUS_ENUM[appointment_item.BusyStatus]
         location = appointment_item.Location
         organizer = appointment_item.Organizer
         categories = format_categories_to_list(appointment_item.Categories)
