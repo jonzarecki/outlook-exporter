@@ -43,12 +43,10 @@ def _find_closest_color_id_in_gc(gc: GoogleCalendar, base_color_hex: str) -> str
         return convert_color(sRGBColor.new_from_rgb_hex(color_hex), LabColor)
 
     base_c = conv_to_lab(base_color_hex)
-    return sorted(
+    return sorted(  # return closest cid
         ((cid, delta_e_cie2000(base_c, conv_to_lab(c_hex))) for cid, c_hex in get_event_possible_colors(gc).items()),
         key=lambda x: x[1],
-    )[0][
-        0
-    ]  # return closest cid
+    )[0][0]
 
 
 def upsert_gc_event_from_outlook_entry(
