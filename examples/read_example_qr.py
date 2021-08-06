@@ -17,6 +17,7 @@ def read_qr_code(fname: str):
         print("There was some error")
 
 
+read_qr_code(os.path.join("qr_images", "qr_wild.png"))
 read_qr_code(os.path.join("qr_images", "qr_code.png"))
 read_qr_code(os.path.join("qr_images", "qr_code_diff_position.png"))
 # "multi_diff_r.png" - works with multi, "curved.png" - doesn't work with curved
