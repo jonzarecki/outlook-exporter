@@ -37,7 +37,11 @@ class OutlookCalendarEntry:
         )
 
     def export_as_str(self) -> str:
-        repr_s = str([v for (k, v) in sorted(self.__dict__.items(), key=lambda itm: itm[0])])
+        params = self.__dict__.copy()
+        params["start_date"] = params["start_date"].isoformat()
+        params["end_date"] = params["end_date"].isoformat()
+
+        repr_s = str([v for (k, v) in sorted(params.items(), key=lambda itm: itm[0])])
         assert OutlookCalendarEntry.import_from_char(repr_s) == self, "import and export should be equal"
         return repr_s
 
@@ -47,6 +51,9 @@ class OutlookCalendarEntry:
         keys = sorted(OutlookCalendarEntry.__annotations__.keys())
         params = dict(zip(keys, values))
         assert isinstance(params, dict), "exported string should contain a string of a dict items"
+
+        params["start_date"] = datetime.datetime.fromisoformat(params["start_date"])
+        params["end_date"] = datetime.datetime.fromisoformat(params["end_date"])
         return OutlookCalendarEntry(**params)
 
 
@@ -91,17 +98,19 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
     def format_categories_to_list(cat_list: str) -> List[str]:
         return cat_list.split(", ") if cat_list != "" else []
 
-    def convert_pywintypes_datetime_to_datetime(pywin_dt: TimeType) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(pywin_dt.timestamp(), tz=pywin_dt.tzinfo)
+    def convert_pywintypes_datetime_to_datetime(
+        pywin_dt: TimeType, timezone: win32com.client.CDispatch
+    ) -> datetime.datetime:
+        timezone_delta = datetime.timedelta(minutes=timezone.Bias + timezone.DaylightBias)
+        return datetime.datetime.fromtimestamp(pywin_dt.timestamp(), tz=datetime.timezone(timezone_delta))
 
     # Read items - Note that Outlook might prevent access to individual
     # item attributes, such as "Organizer", while access to other attributes of
     # the same item is granted.
     calendar_entries = []
-
     for appointment_item in restricted_items:
-        start_date = convert_pywintypes_datetime_to_datetime(appointment_item.Start)
-        end_date = convert_pywintypes_datetime_to_datetime(appointment_item.End)
+        start_date = convert_pywintypes_datetime_to_datetime(appointment_item.Start, appointment_item.StartTimeZone)
+        end_date = convert_pywintypes_datetime_to_datetime(appointment_item.End, appointment_item.EndTimeZone)
         subject = appointment_item.Subject
         opt_attendees = format_attendees_to_list(appointment_item.OptionalAttendees)
         required_attendees = format_attendees_to_list(appointment_item.RequiredAttendees)
