@@ -102,7 +102,7 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
         pywin_dt: TimeType, timezone: win32com.client.CDispatch
     ) -> datetime.datetime:
         timezone_delta = datetime.timedelta(minutes=timezone.Bias + timezone.DaylightBias)
-        return datetime.datetime.fromtimestamp(pywin_dt.timestamp(), tz=datetime.timezone(timezone_delta))
+        return pywin_dt.astimezone(datetime.timezone(timezone_delta))
 
     # Read items - Note that Outlook might prevent access to individual
     # item attributes, such as "Organizer", while access to other attributes of
