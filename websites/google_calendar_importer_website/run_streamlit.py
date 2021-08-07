@@ -1,8 +1,13 @@
 import logging
+import os.path
 
 import streamlit as st
 
-from utils.google_calendar import create_gc_object, upsert_gc_event_from_outlook_entry
+from utils.google_calendar import (
+    GC_SECRET_JSON_PATH,
+    create_gc_object,
+    upsert_gc_event_from_outlook_entry,
+)
 from utils.outlook_reader.calendar import OutlookCalendarEntry
 
 logger = logging.getLogger(__name__)
@@ -12,6 +17,9 @@ SPLIT_STR = "984651651"
 
 def main():
     st.header("Google Calendar Importer Website")
+    if not os.path.exists(GC_SECRET_JSON_PATH):
+        with open(GC_SECRET_JSON_PATH, "w") as f:
+            f.write(st.secrets["gc_client_secret_json"])
 
     query_params = st.experimental_get_query_params()
 
