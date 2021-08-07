@@ -73,11 +73,12 @@ def get_current_user_outlook_calendar() -> win32com.client.CDispatch:
     return namespace.GetDefaultFolder(9)
 
 
-def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEntry]:
-    """Read calendar events during the next 30 days.
+def read_local_outlook_calendar(calendar: win32com.client.CDispatch, days_ahead: int = 7) -> List[OutlookCalendarEntry]:
+    """Read local outlook calendar events during the next $days_ahead days.
 
     Args:
         calendar: The Calendar folder to use.
+        days_ahead: The number of days ahead to read from the calendar
 
     Returns:
         List of CalendarEntries with read information
@@ -86,9 +87,9 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
     # http://msdn.microsoft.com/en-us/library/office/aa210899(v=office.11).aspx
     items = calendar.Items
 
-    # Restrict to items in the next 30 days
+    # Restrict to items in the next $days_ahead days
     begin = datetime.date.today()
-    end = begin + datetime.timedelta(days=30)
+    end = begin + datetime.timedelta(days=days_ahead)
     restriction = "[Start] >= '" + begin.strftime("%d/%m/%Y") + "' AND [End] <= '" + end.strftime("%d/%m/%Y") + "'"
     restricted_items = items.Restrict(restriction)
 

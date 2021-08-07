@@ -18,8 +18,8 @@ from utils.outlook_reader.general import BUSY, ELSEWHERE, OUT_OF_OFFICE, TENTATI
 GC_SECRET_JSON_PATH = os.path.join(PROJECT_ROOT, "client_secret.apps.googleusercontent.com.json")
 
 
-def create_gc_object() -> GoogleCalendar:
-    return GoogleCalendar(credentials_path=GC_SECRET_JSON_PATH)
+def create_gc_object(calendar_id: str) -> GoogleCalendar:
+    return GoogleCalendar(calendar=calendar_id, credentials_path=GC_SECRET_JSON_PATH)
 
 
 def get_event_possible_colors(gc: GoogleCalendar) -> Dict[str, str]:

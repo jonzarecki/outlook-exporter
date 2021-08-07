@@ -3,7 +3,7 @@ from beautiful_date import Jan
 from utils.google_calendar import create_gc_object, upsert_gc_event
 
 if __name__ == "__main__":
-    gc = create_gc_object()
+    gc = create_gc_object("primary")
 
     event = upsert_gc_event(
         gc,

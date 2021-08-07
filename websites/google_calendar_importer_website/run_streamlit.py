@@ -33,7 +33,7 @@ def main():
         entry_list = [OutlookCalendarEntry.import_from_char(repr_s) for repr_s in exporter_str.split(SPLIT_STR)]
         st.text(str(entry_list))
 
-        gc = create_gc_object()
+        gc = create_gc_object(st.secrets["gc_calendar_id"])
 
         for outlook_entry in entry_list:
             print(outlook_entry)
