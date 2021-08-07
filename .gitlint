@@ -71,7 +71,7 @@ regex=^Release(.*)
 
 # Ignore certain rules, you can reference them by their id or by their full name
 # Use 'all' to ignore all rules
-ignore=T1,body-min-length
+ignore=T1,T3,body-min-length
 
 
 # This is a contrib rule - a community contributed rule. These are disabled by default.
