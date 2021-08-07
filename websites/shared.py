@@ -36,22 +36,21 @@ def export_entry_clean_str(entry: OutlookCalendarEntry) -> str:
     params["end_date"] = entry.end_date.isoformat()
     params["location"] = entry.location
     params["busystatus"] = entry.busystatus
-    params["categories_colors"] = entry.categories_colors[0].upper() if len(entry.categories_colors) > 0 else ""
+    params["categories_colors"] = entry.categories_colors[:1]  # type: ignore
     params["conversation_id"] = entry.conversation_id
 
     repr_s = str([v for (k, v) in sorted(params.items(), key=lambda itm: itm[0])])
+    repr_s = _encode_to_alphanumeric(repr_s)
 
     def export_relevant_items(ent: OutlookCalendarEntry) -> Dict[str, object]:
         relevant_vals = {
             k: ent.__dict__[k].upper() if isinstance(ent.__dict__[k], str) else ent.__dict__[k] for k in _KEYS
         }
-        if isinstance(relevant_vals["categories_colors"], list) and len(relevant_vals["categories_colors"]) > 0:
-            relevant_vals["categories_colors"] = relevant_vals["categories_colors"][0].upper()
-        else:
-            relevant_vals["categories_colors"] = ""
+        relevant_vals["categories_colors"] = (
+            relevant_vals["categories_colors"][0].upper() if len(relevant_vals["categories_colors"]) > 0 else ""
+        )
         return relevant_vals
 
-    repr_s = _encode_to_alphanumeric(repr_s)
     assert export_relevant_items(import_from_clean_str(repr_s)) == export_relevant_items(entry), (
         "import and export should be equal \n"
         f"{export_relevant_items(import_from_clean_str(repr_s))}\n"
@@ -95,5 +94,4 @@ def import_from_clean_str(repr_s: str) -> OutlookCalendarEntry:
 
     params["start_date"] = datetime.fromisoformat(params["start_date"])
     params["end_date"] = datetime.fromisoformat(params["end_date"])
-    params["categories_colors"] = [params["categories_colors"]]
     return OutlookCalendarEntry(**params)
