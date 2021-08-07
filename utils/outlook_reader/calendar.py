@@ -99,10 +99,10 @@ def read_calendar(calendar: win32com.client.CDispatch) -> List[OutlookCalendarEn
         return cat_list.split(", ") if cat_list != "" else []
 
     def convert_pywintypes_datetime_to_datetime(
-        pywin_dt: TimeType, timezone: win32com.client.CDispatch
+        pywin_dt: TimeType, o_timezone: win32com.client.CDispatch
     ) -> datetime.datetime:
-        timezone_delta = datetime.timedelta(minutes=timezone.Bias + timezone.DaylightBias)
-        return pywin_dt.astimezone(datetime.timezone(timezone_delta))
+        timezone = datetime.timezone(datetime.timedelta(minutes=-(o_timezone.Bias + o_timezone.DaylightBias)))
+        return datetime.datetime.fromisoformat(pywin_dt.isoformat()[:-9]).astimezone(timezone)  # remove +03:00 from iso
 
     # Read items - Note that Outlook might prevent access to individual
     # item attributes, such as "Organizer", while access to other attributes of
