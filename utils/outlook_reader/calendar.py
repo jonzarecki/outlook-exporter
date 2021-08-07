@@ -1,5 +1,5 @@
 import datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 import win32com.client
@@ -18,14 +18,14 @@ class OutlookCalendarEntry:
     start_date: datetime.datetime
     end_date: datetime.datetime
 
-    location: str
-    organizer: str
-    busystatus: str
+    location: str = ""
+    organizer: str = ""
+    busystatus: str = ""
 
-    attendees: List[str]
-    categories: List[str]
-    categories_colors: List[str]
-    conversation_id: str
+    attendees: List[str] = field(default_factory=list)
+    categories: List[str] = field(default_factory=list)
+    categories_colors: List[str] = field(default_factory=list)
+    conversation_id: str = ""
 
     def __str__(self) -> str:
         return (

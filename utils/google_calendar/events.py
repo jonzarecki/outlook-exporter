@@ -1,52 +1,54 @@
 import hashlib
 import logging
-import os
-from datetime import datetime
-from typing import Dict, Optional
+from datetime import datetime, timezone
+from typing import List, Optional
 
 import googleapiclient.errors
-from colormath.color_conversions import convert_color
-from colormath.color_diff import delta_e_cie2000
-from colormath.color_objects import LabColor, sRGBColor
 from gcsa.event import Event
 from gcsa.google_calendar import GoogleCalendar
 
-from utils.config import PROJECT_ROOT
+from utils.google_calendar.general import _find_closest_color_id_in_gc
 from utils.outlook_reader.calendar import OutlookCalendarEntry
 from utils.outlook_reader.general import BUSY, ELSEWHERE, OUT_OF_OFFICE, TENTATIVE
 
-GC_SECRET_JSON_PATH = os.path.join(PROJECT_ROOT, "client_secret.apps.googleusercontent.com.json")
 
+def sync_outlook_events_with_gc(gc: GoogleCalendar, outlook_events: List[OutlookCalendarEntry]):
+    """Sync outlook events taken from a given range with google calendar.
 
-def create_gc_object(calendar_id: str) -> GoogleCalendar:
-    return GoogleCalendar(calendar=calendar_id, credentials_path=GC_SECRET_JSON_PATH)
-
-
-def get_event_possible_colors(gc: GoogleCalendar) -> Dict[str, str]:
-    """Retrieves a dict of possible colors and their ids for the given calendar.
+    If an event which is present in the gc in this range but not in the outlook events IS WAS DELETED.
+    Delete if from gc.
 
     Args:
-        gc: a google calendar object
-
-    Returns:
-        Dict of color_id (can be passed to add_event()) and hex value of color (#a4bdfc)
+        gc: google calendar object
+        outlook_events: list of outlook events
     """
-    gc_color_list = gc.list_event_colors()
-    assert "1" in gc_color_list, "I assert that 1 is the default color in GC (appears in other code)"
-    return {k: v["background"] for k, v in gc.list_event_colors().items()}
+    timeframe_min = min(ent.start_date for ent in outlook_events).astimezone(timezone.utc)
+    timeframe_max = max(ent.end_date for ent in outlook_events).astimezone(timezone.utc)
+
+    outlook_ids_to_sync = [hash_event_id_for_gc(ent) for ent in outlook_events]
+    assert len(outlook_ids_to_sync) == len(set(outlook_ids_to_sync)), "ids should be unique"
+
+    events_already_in_gc = list(gc.get_events(timeframe_min, timeframe_max, timezone="UTC"))
+    ids_already_in_gc = [gc_e.event_id for gc_e in events_already_in_gc]
+    assert len(ids_already_in_gc) == len(set(ids_already_in_gc)), "ids should be unique"
+
+    # We assume the calendar in the same timeframe is EXACTLY the same ($outlook_id == $gc_id\d+)
+    # meaning if an event in gc exists without a matching outlook event it should be DELETED
+    gc_events_deleted_in_outlook = [
+        gc_e for gc_e in events_already_in_gc if not any((o_id in gc_e.event_id) for o_id in outlook_ids_to_sync)
+    ]
+
+    for gc_e_to_delete in gc_events_deleted_in_outlook:
+        gc.delete_event(gc_e_to_delete)
+
+    # add Outlook entries to google calendar
+    for outlook_entry in outlook_events:
+        print(outlook_entry)
+        upsert_gc_event_from_outlook_entry(gc, outlook_entry)
 
 
-def _find_closest_color_id_in_gc(gc: GoogleCalendar, base_color_hex: str) -> str:
-    """Returns the closest color_id to $base_color_hex from the $gc calendar."""
-
-    def conv_to_lab(color_hex: str):
-        return convert_color(sRGBColor.new_from_rgb_hex(color_hex), LabColor)
-
-    base_c = conv_to_lab(base_color_hex)
-    return sorted(  # return closest cid
-        ((cid, delta_e_cie2000(base_c, conv_to_lab(c_hex))) for cid, c_hex in get_event_possible_colors(gc).items()),
-        key=lambda x: x[1],
-    )[0][0]
+def hash_event_id_for_gc(entry: OutlookCalendarEntry) -> str:
+    return hashlib.md5(entry.conversation_id.encode()).hexdigest()
 
 
 def upsert_gc_event_from_outlook_entry(
@@ -65,7 +67,7 @@ def upsert_gc_event_from_outlook_entry(
     """
     return upsert_gc_event(
         gc,
-        event_id=hashlib.md5(entry.conversation_id.encode()).hexdigest(),
+        event_id=hash_event_id_for_gc(entry),
         summary=entry.subject,
         start_date=entry.start_date,
         end_date=entry.end_date,

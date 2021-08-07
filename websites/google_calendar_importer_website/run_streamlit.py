@@ -2,13 +2,12 @@ import logging
 import os.path
 
 import streamlit as st
+from stqdm import stqdm
+from streamlit.report_thread import get_report_ctx
 
-from utils.google_calendar import (
-    GC_SECRET_JSON_PATH,
-    create_gc_object,
-    upsert_gc_event_from_outlook_entry,
-)
-from utils.outlook_reader.calendar import OutlookCalendarEntry
+from utils.google_calendar.events import upsert_gc_event_from_outlook_entry
+from utils.google_calendar.general import GC_SECRET_JSON_PATH, create_gc_object
+from websites.shared import read_exported_str_to_entry_list
 
 logger = logging.getLogger(__name__)
 
@@ -21,26 +20,20 @@ def main():
         with open(GC_SECRET_JSON_PATH, "w") as f:
             f.write(st.secrets["gc_client_secret_json"])
 
-    query_params = st.experimental_get_query_params()
-
-    if "qr_str" in query_params:
-        exporter_str = query_params["qr_str"][0]
-        assert (
-            exporter_str[: len(st.secrets["unique_identifier"])] == st.secrets["unique_identifier"]
-        ), "QR code was generated with this id at the beginning"
-
-        exporter_str = exporter_str[len(st.secrets["unique_identifier"]) :]
-        entry_list = [OutlookCalendarEntry.import_from_char(repr_s) for repr_s in exporter_str.split(SPLIT_STR)]
+    ctx = get_report_ctx()
+    query_str = ctx.query_string
+    if query_str != "":
+        entry_list = read_exported_str_to_entry_list(query_str)
         st.text(str(entry_list))
 
         gc = create_gc_object(st.secrets["gc_calendar_id"])
 
-        for outlook_entry in entry_list:
+        for outlook_entry in stqdm(entry_list):
             print(outlook_entry)
             upsert_gc_event_from_outlook_entry(gc, outlook_entry)
 
     else:
-        st.text("no qr_str")
+        st.text("URL was not sent correctly")
 
 
 if __name__ == "__main__":

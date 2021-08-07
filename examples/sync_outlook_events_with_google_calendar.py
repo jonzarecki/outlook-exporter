@@ -1,6 +1,6 @@
 import win32com.client
 
-from utils.google_calendar.events import upsert_gc_event_from_outlook_entry
+from utils.google_calendar.events import sync_outlook_events_with_gc
 from utils.google_calendar.general import create_gc_object
 from utils.outlook_reader.calendar import read_local_outlook_calendar
 
@@ -12,11 +12,8 @@ if __name__ == "__main__":
 
     # get own calendar
     calendar = namespace.GetDefaultFolder(9)
-    entries = read_local_outlook_calendar(calendar)
-
-    # add Outlook entries to google calendar
+    days_ahead = 7
+    entries = read_local_outlook_calendar(calendar, days_ahead=days_ahead)
     gc = create_gc_object("primary")
 
-    for outlook_entry in entries:
-        print(outlook_entry)
-        upsert_gc_event_from_outlook_entry(gc, outlook_entry)
+    sync_outlook_events_with_gc(gc, entries)

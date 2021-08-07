@@ -1,6 +1,7 @@
 from beautiful_date import Jan
 
-from utils.google_calendar import create_gc_object, upsert_gc_event
+from utils.google_calendar.events import upsert_gc_event
+from utils.google_calendar.general import create_gc_object
 
 if __name__ == "__main__":
     gc = create_gc_object("primary")
