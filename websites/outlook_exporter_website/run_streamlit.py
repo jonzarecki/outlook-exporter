@@ -1,9 +1,6 @@
 import streamlit as st
 
-from utils.outlook_reader.calendar import (
-    get_current_user_outlook_calendar,
-    read_local_outlook_calendar,
-)
+from utils.outlook_reader.calendar import get_current_user_outlook_calendar, read_local_outlook_calendar
 from utils.qr.generate import create_qr_image
 from websites.export_utils import export_entry_list_as_str
 
@@ -18,6 +15,12 @@ if __name__ == "__main__":
     st.text(str(len(exported_str)))
 
     st.image(
-        create_qr_image(["http://172.16.0.116:8501?", exported_str]),
+        create_qr_image(
+            [
+                "https://share.streamlit.io/jonzarecki/outlook-exporter/websites/"
+                "google_calendar_importer_website/run_streamlit.py?",
+                exported_str,
+            ]
+        ),
         caption="qr code",
     )
