@@ -1,16 +1,22 @@
 import logging
 import os
 import os.path
+import sys
 import time
+from pathlib import Path
 
 import streamlit as st
 from stqdm import stqdm
 from streamlit.report_thread import get_report_ctx
 
-from utils.google_calendar.events import upsert_gc_event_from_outlook_entry
-from utils.google_calendar.general import GC_SECRET_JSON_PATH, create_gc_object
-from utils.streamlit_utils import streamlit_run_js
-from websites.export_utils import read_exported_str_to_entry_list
+_root_path = Path(__file__).parent.parent.parent
+assert _root_path.name == "outlook-exporter", "_root_path is not the actual project's root path"
+sys.path.append(str(_root_path))
+
+from utils.google_calendar.events import upsert_gc_event_from_outlook_entry  # pylint: disable=C0413
+from utils.google_calendar.general import create_gc_object, GC_SECRET_JSON_PATH  # pylint: disable=C0413
+from utils.streamlit_utils import streamlit_run_js  # pylint: disable=C0413
+from websites.export_utils import read_exported_str_to_entry_list  # pylint: disable=C0413
 
 logger = logging.getLogger(__name__)
 
