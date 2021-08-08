@@ -11,3 +11,12 @@ dependencies:
   - pip:
       - streamlit
       - stqdm
+      - sqlalchemy
+      - bokeh
+      - colormath
+      - gcsa
+      - qrcode
+      - sqlalchemy
+      - stqdm
+      - streamlit
+      - python-opencv

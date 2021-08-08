@@ -1,0 +1,9 @@
+bokeh
+colormath
+gcsa
+qrcode
+sqlalchemy
+stqdm
+streamlit
+# pywin32
+# python-opencv
