@@ -8,8 +8,8 @@ from gcsa.event import Event
 from gcsa.google_calendar import GoogleCalendar
 
 from utils.google_calendar.general import _find_closest_color_id_in_gc
-from utils.outlook_reader.calendar import OutlookCalendarEntry
 from utils.outlook_reader.general import BUSY, ELSEWHERE, OUT_OF_OFFICE, TENTATIVE
+from utils.outlook_reader.outlook_event import OutlookCalendarEntry
 
 
 def sync_outlook_events_with_gc(gc: GoogleCalendar, outlook_events: List[OutlookCalendarEntry]):

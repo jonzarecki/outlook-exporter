@@ -1,19 +1,7 @@
-from typing import List, Optional
+from typing import Optional
 
 import cv2
 import numpy as np
-from PIL.Image import Image
-from qrcode import QRCode, constants
-from qrcode.util import QRData
-
-
-def create_qr_image(messages: List[str]) -> Image:
-    """Create QR image from a list of messages."""
-    qr = QRCode(version=2, error_correction=constants.ERROR_CORRECT_L)
-    for msg in messages:
-        qr.add_data(QRData(msg), optimize=500)
-    return qr.make_image().get_image()
-
 
 _detector = None
 

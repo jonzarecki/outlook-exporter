@@ -2,7 +2,7 @@ import os
 
 import cv2
 
-from utils.qr import read_qr_from_ndarray
+from utils.qr.read import read_qr_from_ndarray
 
 
 def read_qr_code(fname: str):

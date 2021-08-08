@@ -4,7 +4,7 @@ from utils.outlook_reader.calendar import (
     get_current_user_outlook_calendar,
     read_local_outlook_calendar,
 )
-from utils.qr import create_qr_image
+from utils.qr.generate import create_qr_image
 from websites.export_utils import export_entry_list_as_str
 
 if __name__ == "__main__":

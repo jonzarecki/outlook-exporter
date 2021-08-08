@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import streamlit as st
 
-from utils.outlook_reader.calendar import OutlookCalendarEntry
+from utils.outlook_reader.outlook_event import OutlookCalendarEntry
 
 SPLIT_STR = "984651651"
 
