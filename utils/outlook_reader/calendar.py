@@ -4,11 +4,8 @@ from typing import List
 import win32com.client
 from pywintypes import TimeType
 
-from utils.outlook_reader.general import (
-    BUSYSTATUS_ENUM,
-    OUTLOOK_COLOR_ENUM,
-    generate_outlook_namespace,
-)
+from utils.outlook_reader.constants import BUSYSTATUS_ENUM, OUTLOOK_COLOR_ENUM
+from utils.outlook_reader.general import generate_outlook_namespace
 from utils.outlook_reader.outlook_event import OutlookCalendarEntry
 
 
