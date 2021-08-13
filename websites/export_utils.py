@@ -68,7 +68,10 @@ _ENCODE_DICT = {  # $ % *+-./:
     "]": "g-h".upper(),
     ",": "i-j".upper(),
     "+": "k-l".upper(),
+    "ז": "pp-".upper(),
 }
+_ENCODE_DICT.update({chr(ord("א") + i): f"{chr(ord('A') + i)}--".upper() for i in range(25 + 1)})
+
 _DECODE_DICT = {v: k for k, v in _ENCODE_DICT.items()}
 
 
