@@ -12,7 +12,7 @@ GC_SECRET_JSON_PATH = os.path.join(PROJECT_ROOT, "client_secret.apps.googleuserc
 
 
 def create_gc_object(calendar_id: str) -> GoogleCalendar:
-    return GoogleCalendar(calendar=calendar_id, credentials_path=GC_SECRET_JSON_PATH)
+    return GoogleCalendar(calendar=calendar_id, credentials_path=GC_SECRET_JSON_PATH, authentication_flow_port=11138)
 
 
 def get_event_possible_colors(gc: GoogleCalendar) -> Dict[str, str]:
