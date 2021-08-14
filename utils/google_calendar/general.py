@@ -5,14 +5,25 @@ from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
 from colormath.color_objects import LabColor, sRGBColor
 from gcsa.google_calendar import GoogleCalendar
+from pebble import concurrent
 
 from utils.config import PROJECT_ROOT
 
 GC_SECRET_JSON_PATH = os.path.join(PROJECT_ROOT, "client_secret.apps.googleusercontent.com.json")
 
 
-def create_gc_object(calendar_id: str) -> GoogleCalendar:
+@concurrent.process(timeout=15)
+def _creation_process(calendar_id: str):
     return GoogleCalendar(calendar=calendar_id, credentials_path=GC_SECRET_JSON_PATH, authentication_flow_port=11138)
+
+
+def create_gc_object(calendar_id: str) -> GoogleCalendar:
+    try:
+        process = _creation_process(calendar_id)
+        return process.result()
+    except TimeoutError:
+        print("User hasn't authenticated in 15 seconds")
+        raise
 
 
 def get_event_possible_colors(gc: GoogleCalendar) -> Dict[str, str]:

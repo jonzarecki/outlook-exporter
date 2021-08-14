@@ -1,6 +1,7 @@
 bokeh
 colormath
 gcsa
+pebble
 qrcode
 sqlalchemy
 stqdm

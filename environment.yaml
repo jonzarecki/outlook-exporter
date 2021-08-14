@@ -20,3 +20,4 @@ dependencies:
       - stqdm
       - streamlit
       - python-opencv
+      - pebble
