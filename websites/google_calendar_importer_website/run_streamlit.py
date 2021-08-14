@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 import streamlit as st
+from google.oauth2 import service_account
 from stqdm import stqdm
 from streamlit.report_thread import get_report_ctx
 
@@ -21,7 +22,7 @@ from websites.export_utils import read_exported_str_to_entry_list  # pylint: dis
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main() -> None:
     st.header("Google Calendar Importer Website")
     if not os.path.exists(GC_SECRET_JSON_PATH):
         with open(GC_SECRET_JSON_PATH, "w") as f:
@@ -33,7 +34,14 @@ def main():
         entry_list = read_exported_str_to_entry_list(query_str)
         st.text(str(entry_list))
 
-        gc = create_gc_object(st.secrets["gc_calendar_id"])
+        credentials = service_account.Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=[
+                "https://www.googleapis.com/auth/calendar",
+            ],
+        )
+
+        gc = create_gc_object(st.secrets["gc_calendar_id"], credentials)
 
         for outlook_entry in stqdm(entry_list):
             print(outlook_entry)
@@ -52,7 +60,6 @@ if __name__ == "__main__":
 
     logging.basicConfig(
         format="[%(asctime)s] %(levelname)7s from %(name)s in %(pathname)s:%(lineno)d: " "%(message)s",
-        force=True,
     )
 
     logger.setLevel(level=logging.DEBUG)  # if DEBUG else logging.INFO

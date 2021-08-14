@@ -20,4 +20,4 @@ dependencies:
       - stqdm
       - streamlit
       - python-opencv
-      - pebble
+      - httpx_oauth

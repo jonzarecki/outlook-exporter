@@ -2,7 +2,7 @@ import streamlit as st
 from bokeh.models import Div
 
 
-def streamlit_run_js(js_code: str):
+def streamlit_run_js(js_code: str) -> None:
     """Runs javascript code at this step in streamlit.
 
     Uses bokeh (and it is a dependency).

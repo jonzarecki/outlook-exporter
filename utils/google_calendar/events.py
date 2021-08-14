@@ -12,7 +12,7 @@ from utils.outlook_reader.constants import BUSY, ELSEWHERE, OUT_OF_OFFICE, TENTA
 from utils.outlook_reader.outlook_event import OutlookCalendarEntry
 
 
-def sync_outlook_events_with_gc(gc: GoogleCalendar, outlook_events: List[OutlookCalendarEntry]):
+def sync_outlook_events_with_gc(gc: GoogleCalendar, outlook_events: List[OutlookCalendarEntry]) -> None:
     """Sync outlook events taken from a given range with google calendar.
 
     If an event which is present in the gc in this range but not in the outlook events IS WAS DELETED.

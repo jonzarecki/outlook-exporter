@@ -8,11 +8,9 @@ from utils.outlook_reader.outlook_event import OutlookCalendarEntry
 SPLIT_STR = "984651651"
 
 
-def export_entry_list_as_str(entries: List[OutlookCalendarEntry]):
+def export_entry_list_as_str(entries: List[OutlookCalendarEntry]) -> str:
     """Export list of outlook entries as clean string for QR consumption."""
-    exported_str = st.secrets["unique_identifier"] + SPLIT_STR.join([export_entry_clean_str(ent) for ent in entries])
-
-    return exported_str
+    return str(st.secrets["unique_identifier"]) + SPLIT_STR.join([export_entry_clean_str(ent) for ent in entries])
 
 
 def read_exported_str_to_entry_list(exported_str: str) -> List[OutlookCalendarEntry]:
