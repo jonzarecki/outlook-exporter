@@ -14,7 +14,13 @@ GC_SECRET_JSON_PATH = os.path.join(PROJECT_ROOT, "client_secret.apps.googleuserc
 
 @concurrent.process(timeout=15)
 def _creation_process(calendar_id: str):
-    return GoogleCalendar(calendar=calendar_id, credentials_path=GC_SECRET_JSON_PATH, authentication_flow_port=11138)
+    return GoogleCalendar(
+        calendar=calendar_id,
+        credentials_path=GC_SECRET_JSON_PATH,
+        authentication_flow_host="https://share.streamlit.io/jonzarecki/outlook-exporter/websites/"
+        "google_calendar_importer_website/run_streamlit.py?",
+        authentication_flow_port=80,
+    )
 
 
 def create_gc_object(calendar_id: str) -> GoogleCalendar:
