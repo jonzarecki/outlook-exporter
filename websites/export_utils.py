@@ -4,6 +4,7 @@ from typing import Dict, List
 import streamlit as st
 
 from utils.outlook_reader.outlook_event import OutlookCalendarEntry
+from websites.export_storage import get_export_name
 
 SPLIT_STR = "984651651"
 
@@ -26,10 +27,17 @@ def read_exported_str_to_entry_list(exported_str: str) -> List[OutlookCalendarEn
 _KEYS = sorted(["subject", "start_date", "end_date", "location", "busystatus", "categories_colors", "conversation_id"])
 
 
+def _export_relevant_items(ent: OutlookCalendarEntry) -> Dict[str, object]:
+    relevant_vals = {k: ent.__dict__[k].upper() if isinstance(ent.__dict__[k], str) else ent.__dict__[k] for k in _KEYS}
+    relevant_vals["categories_colors"] = ent.categories_colors[:1]
+    relevant_vals["subject"] = get_export_name(conversation_id=ent.conversation_id)
+    return relevant_vals
+
+
 def export_entry_clean_str(entry: OutlookCalendarEntry) -> str:
     """Export outlook entry as clean string for QR consumption."""
     params = dict()
-    params["subject"] = entry.subject
+    params["subject"] = get_export_name(conversation_id=entry.conversation_id)
     params["start_date"] = entry.start_date.isoformat()
     params["end_date"] = entry.end_date.isoformat()
     params["location"] = entry.location
@@ -40,19 +48,10 @@ def export_entry_clean_str(entry: OutlookCalendarEntry) -> str:
     repr_s = str([v for (k, v) in sorted(params.items(), key=lambda itm: itm[0])])
     repr_s = _encode_to_alphanumeric(repr_s)
 
-    def export_relevant_items(ent: OutlookCalendarEntry) -> Dict[str, object]:
-        relevant_vals = {
-            k: ent.__dict__[k].upper() if isinstance(ent.__dict__[k], str) else ent.__dict__[k] for k in _KEYS
-        }
-        relevant_vals["categories_colors"] = (
-            relevant_vals["categories_colors"][0].upper() if len(relevant_vals["categories_colors"]) > 0 else ""
-        )
-        return relevant_vals
-
-    assert export_relevant_items(import_from_clean_str(repr_s)) == export_relevant_items(entry), (
+    assert _export_relevant_items(import_from_clean_str(repr_s)) == _export_relevant_items(entry), (
         "import and export should be equal \n"
-        f"{export_relevant_items(import_from_clean_str(repr_s))}\n"
-        f"{export_relevant_items(entry)}"
+        f"{_export_relevant_items(import_from_clean_str(repr_s))}\n"
+        f"{_export_relevant_items(entry)}"
     )
     return repr_s
 

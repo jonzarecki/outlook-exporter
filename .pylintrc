@@ -152,7 +152,7 @@ disable=abstract-method,
         missing-raises-doc,
         protected-access,
         logging-fstring-interpolation,
-
+        missing-return-doc,  # covered by darlint
 [REPORTS]
 
 # Set the output format. Available formats are text, parseable, colorized, msvs

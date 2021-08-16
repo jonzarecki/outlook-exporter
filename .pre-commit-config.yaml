@@ -167,15 +167,6 @@ repos:
       - id: debug-statements
       - id: requirements-txt-fixer
 
-  #  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  #    rev: v2.1.0
-  #    hooks:
-  #      - id: pretty-format-ini
-  #        args: [--autofix]
-  #        exclude: .pylintrc
-  #      - id: pretty-format-toml
-  #        args: [--autofix]
-
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: "v2.3.2"
     hooks:
