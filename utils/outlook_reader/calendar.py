@@ -2,7 +2,7 @@ import datetime
 from typing import List
 
 import win32com.client
-from pywintypes import TimeType
+from pywintypes import com_error, TimeType
 
 from utils.outlook_reader.constants import BUSYSTATUS_ENUM, OUTLOOK_COLOR_ENUM
 from utils.outlook_reader.general import generate_outlook_namespace
@@ -25,6 +25,38 @@ def get_current_user_outlook_calendar() -> win32com.client.CDispatch:
     return namespace.GetDefaultFolder(9)
 
 
+def _expand_recurring_items(
+    items: win32com.client.CDispatch, begin: datetime.date, end: datetime.date
+) -> List[win32com.client.CDispatch]:
+    """Expand items list according to recurring items."""
+    ret_list = []
+    for appointment_item in items:
+        if appointment_item.IsRecurring:
+            rp = appointment_item.GetRecurrencePattern()
+            curr_delta = 0
+            while rp.PatternStartDate.date() + datetime.timedelta(days=curr_delta) < end:
+                try:
+                    occ_app_item = rp.GetOccurrence(appointment_item.Start + datetime.timedelta(days=curr_delta))
+
+                    occ_app_item.__dict__["ConversationID"] = appointment_item.ConversationID + f"REG{curr_delta}"
+                    ret_list.append(occ_app_item)
+                except com_error:
+                    pass
+                finally:
+                    curr_delta += 1
+
+            # Exceptions in range
+            for i, exp_appointment_item in enumerate([exp.AppointmentItem for exp in rp.Exceptions]):
+                if exp_appointment_item.Start.date() >= begin and exp_appointment_item.End.date() <= end:
+                    exp_appointment_item.__dict__["ConversationID"] = appointment_item.ConversationID + f"EXP{i}"
+                    ret_list.append(exp_appointment_item)
+
+        else:  # normal event
+            ret_list.append(appointment_item)
+
+    return ret_list
+
+
 def read_local_outlook_calendar(calendar: win32com.client.CDispatch, days_ahead: int = 7) -> List[OutlookCalendarEntry]:
     """Read local outlook calendar events during the next $days_ahead days.
 
@@ -43,7 +75,9 @@ def read_local_outlook_calendar(calendar: win32com.client.CDispatch, days_ahead:
     begin = datetime.date.today()
     end = begin + datetime.timedelta(days=days_ahead)
     restriction = "[Start] >= '" + begin.strftime("%d/%m/%Y") + "' AND [End] <= '" + end.strftime("%d/%m/%Y") + "'"
+    items.IncludeRecurrences = True
     restricted_items = items.Restrict(restriction)
+    restricted_items.Sort("[Start]")
 
     def format_attendees_to_list(att_list: str) -> List[str]:
         return att_list.split("; ") if att_list != "" else []  # TODO: clean attendees names
@@ -61,7 +95,7 @@ def read_local_outlook_calendar(calendar: win32com.client.CDispatch, days_ahead:
     # item attributes, such as "Organizer", while access to other attributes of
     # the same item is granted.
     calendar_entries = []
-    for appointment_item in restricted_items:
+    for appointment_item in _expand_recurring_items(restricted_items, begin, end):
         start_date = convert_pywintypes_datetime_to_datetime(appointment_item.Start, appointment_item.StartTimeZone)
         end_date = convert_pywintypes_datetime_to_datetime(appointment_item.End, appointment_item.EndTimeZone)
         subject = appointment_item.Subject

@@ -57,15 +57,15 @@ def export_entry_clean_str(entry: OutlookCalendarEntry) -> str:
 
 
 _ENCODE_DICT = {  # $ % *+-./:
-    ":": "9-8".upper(),
-    " ": "0-1".upper(),
+    ":": "8-9".upper(),
+    " ": "1-9".upper(),
     "'": "a-b".upper(),
     "#": "c-d".upper(),
     "[": "e-f".upper(),
     "]": "g-h".upper(),
     ",": "i-j".upper(),
     "+": "k-l".upper(),
-    "ז": "pp-".upper(),
+    "ת": "pp-".upper(),
 }
 _ENCODE_DICT.update({chr(ord("א") + i): f"{chr(ord('A') + i)}--".upper() for i in range(25 + 1)})
 

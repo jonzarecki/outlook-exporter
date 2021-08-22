@@ -7,7 +7,7 @@ from websites.export_utils import export_entry_list_as_str
 
 if __name__ == "__main__":
     st.header("Outlook Exporter")
-    days_ahead = st.number_input("Enter number of days ahead to export", value=4, min_value=1, max_value=14)
+    days_ahead = st.number_input("Enter number of days ahead to export", value=4, min_value=1, max_value=30)
     calendar = get_current_user_outlook_calendar()
     entries = read_local_outlook_calendar(calendar, days_ahead)
 
