@@ -1,7 +1,7 @@
 from typing import List
 
 from PIL.Image import Image
-from qrcode import QRCode, constants
+from qrcode import constants, QRCode
 from qrcode.util import QRData
 
 
