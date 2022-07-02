@@ -30,6 +30,7 @@ def main() -> None:
 
     ctx = get_report_ctx()
     query_str = ctx.query_string
+    print("query_str\n" + query_str)
     if query_str != "":
         entry_list = read_exported_str_to_entry_list(query_str)
         st.text(str(entry_list))
