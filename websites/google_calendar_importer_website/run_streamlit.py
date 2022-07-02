@@ -8,7 +8,7 @@ from pathlib import Path
 import streamlit as st
 from google.oauth2 import service_account
 from stqdm import stqdm
-from streamlit.report_thread import get_report_ctx
+from streamlit.scriptrunner import get_script_run_ctx as get_report_ctx
 
 _root_path = Path(__file__).parent.parent.parent
 assert _root_path.name == "outlook-exporter", "_root_path is not the actual project's root path"
