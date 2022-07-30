@@ -11,7 +11,7 @@ from stqdm import stqdm
 from streamlit.scriptrunner import get_script_run_ctx as get_report_ctx
 
 _root_path = Path(__file__).parent.parent.parent
-assert _root_path.name == "outlook-exporter", "_root_path is not the actual project's root path"
+# assert _root_path.name == "outlook-exporter", "_root_path is not the actual project's root path"  # noqa
 sys.path.append(str(_root_path))
 
 from utils.google_calendar.events import upsert_gc_event_from_outlook_entry  # pylint: disable=C0413
