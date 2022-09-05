@@ -9,7 +9,7 @@ dependencies:
   - pywin32
 
   - pip:
-      - streamlit==1.0.*
+      - streamlit=1.0.*
       - stqdm
       - sqlalchemy
       - bokeh
