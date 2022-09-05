@@ -5,6 +5,6 @@ httpx_oauth
 qrcode
 sqlalchemy
 stqdm
-streamlit==1.7.*
+streamlit==1.11.*
 # pywin32
 # python-opencv
