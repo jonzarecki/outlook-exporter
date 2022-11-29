@@ -1,6 +1,6 @@
 bokeh==2.4.1
 colormath
-gcsa
+gcsa<2.0
 httpx_oauth
 qrcode
 sqlalchemy
