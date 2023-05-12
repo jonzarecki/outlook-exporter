@@ -21,3 +21,4 @@ dependencies:
       - streamlit
       - python-opencv
       - httpx_oauth
+      - altair<=4
