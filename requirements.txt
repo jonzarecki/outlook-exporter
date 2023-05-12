@@ -8,3 +8,4 @@ stqdm
 streamlit==1.11.*
 # pywin32
 # python-opencv
+altair<5
