@@ -9,3 +9,4 @@ streamlit==1.11.*
 numpy<1.22
 # pywin32
 # python-opencv
+altair<5
