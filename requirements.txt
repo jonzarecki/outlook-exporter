@@ -7,6 +7,7 @@ sqlalchemy
 stqdm
 streamlit==1.11.*
 numpy<1.22
+altair=4.*
 # pywin32
 # python-opencv
-altair<5
+
